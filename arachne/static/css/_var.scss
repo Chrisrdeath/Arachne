@@ -1,0 +1,204 @@
+@use 'sass:color';
+
+$primary: #750B25;
+
+$secondary:#51304e;
+$tertiary: #e0e0e0;
+//$tertiary: #a49e9e;
+$quaternary: #236637;
+
+//$secondary: #51304e;
+//$tertiary: #a49e9e;
+//$quaternary: #0a1810;
+
+$dark: #3a363b;
+$light: #d1d5d0;
+
+//$secondary: #343a40;
+//$tertiary : #f8f9fa;
+
+$white: #fff;
+$black: #000;
+
+$red: #dc3545;
+$orange: #fd7e14; 
+$yellow: #ffc107;
+$green: #28a745;
+$blue: #007bff;
+$indigo: #6610f2;
+$violet: #6f42c1;
+
+@font-face {
+    font-family: 'Roboto';
+    src: url(../fonts/Roboto.ttf) format('ttf');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+/*#region Color Mixes*/
+$primary-10: color.mix($primary, $black, 40%);
+$primary-20: color.mix($primary, $black, 60%);
+$primary-30: color.mix($primary, $black, 80%);
+$primary-40: color.mix($primary, $white, 80%);
+$primary-50: color.mix($primary, $white, 60%);
+$primary-60: color.mix($primary, $white, 40%);
+
+$secondary-10: color.mix($secondary, $white, 80%);
+$secondary-20: color.mix($secondary, $white, 60%);
+$secondary-30: color.mix($secondary, $white, 40%);
+
+$tertiary-10: color.mix($tertiary, $black, 80%);
+$tertiary-20: color.mix($tertiary, $black, 60%);
+$tertiary-30: color.mix($tertiary, $black, 50%);
+
+$red-100: color.mix($red, $white, 20%);
+$red-200: color.mix($red, $white, 40%);
+$red-300: color.mix($red, $white, 60%);
+$red-400: color.mix($red, $white, 80%);
+$red-500: $red;
+$red-600: color.mix($red, $black, 80%);
+$red-700: color.mix($red, $black, 60%);
+$red-800: color.mix($red, $black, 40%);
+$red-900: color.mix($red, $black, 20%);
+
+$orange-100: color.mix($orange, $white, 20%);
+$orange-200: color.mix($orange, $white, 40%);
+$orange-300: color.mix($orange, $white, 60%);
+$orange-400: color.mix($orange, $white, 80%);
+$orange-500: $orange;
+$orange-600: color.mix($orange, $black, 80%);
+$orange-700: color.mix($orange, $black, 60%);
+$orange-800: color.mix($orange, $black, 40%);
+$orange-900: color.mix($orange, $black, 20%);
+
+$yellow-100: color.mix($yellow, $white, 20%);
+$yellow-200: color.mix($yellow, $white, 40%);
+$yellow-300: color.mix($yellow, $white, 60%);
+$yellow-400: color.mix($yellow, $white, 80%);
+$yellow-500: $yellow;
+$yellow-600: color.mix($yellow, $black, 80%);
+$yellow-700: color.mix($yellow, $black, 60%);
+$yellow-800: color.mix($yellow, $black, 40%);
+$yellow-900: color.mix($yellow, $black, 20%);
+
+$green-100: color.mix($green, $white, 20%);
+$green-200: color.mix($green, $white, 40%);
+$green-300: color.mix($green, $white, 60%);
+$green-400: color.mix($green, $white, 80%);
+$green-500: $green;
+$green-600: color.mix($green, $black, 80%);
+$green-700: color.mix($green, $black, 60%);
+$green-800: color.mix($green, $black, 40%);
+$green-900: color.mix($green, $black, 20%);
+
+$blue-100: color.mix($blue, $white, 20%);
+$blue-200: color.mix($blue, $white, 40%);
+$blue-300: color.mix($blue, $white, 60%);
+$blue-400: color.mix($blue, $white, 80%);
+$blue-500: $blue;
+$blue-600: color.mix($blue, $black, 80%);
+$blue-700: color.mix($blue, $black, 60%);
+$blue-800: color.mix($blue, $black, 40%);
+$blue-900: color.mix($blue, $black, 20%);
+
+$indigo-100: color.mix($indigo, $white, 20%);
+$indigo-200: color.mix($indigo, $white, 40%);
+$indigo-300: color.mix($indigo, $white, 60%);
+$indigo-400: color.mix($indigo, $white, 80%);
+$indigo-500: $indigo;
+$indigo-600: color.mix($indigo, $black, 80%);
+$indigo-700: color.mix($indigo, $black, 60%);
+$indigo-800: color.mix($indigo, $black, 40%);
+$indigo-900: color.mix($indigo, $black, 20%);
+
+$violet-100: color.mix($violet, $white, 20%);
+$violet-200: color.mix($violet, $white, 40%);
+$violet-300: color.mix($violet, $white, 60%);
+$violet-400: color.mix($violet, $white, 80%);
+$violet-500: $violet;
+$violet-600: color.mix($violet, $black, 80%);
+$violet-700: color.mix($violet, $black, 60%);
+$violet-800: color.mix($violet, $black, 40%);
+$violet-900: color.mix($violet, $black, 20%);
+/*#endregion*/
+
+/*#region buttons*/
+
+$success: $green-500;
+$warning: $yellow-500;
+$danger: $red-500;
+$info: $violet-500;
+
+/*
+width: 80%;
+margin: auto;
+box-shadow: rgba(0, 0, 0, 0.1);
+backdrop-filter: blur(7.5px);
+border-radius: 16px;
+border: 1px solid rgba(255, 255, 255, 0.3);
+padding: 10px;
+border-spacing: 0;
+*/
+
+.success{
+    background-color: $success;
+    color: $black;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    &:hover{
+        background-color: $green-700;
+        color: $tertiary;
+    }
+}
+
+.warning{
+    background-color: $warning;
+    color: $black;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    &:hover{
+        background-color: $yellow-700;
+        color: $tertiary;
+    }
+}
+
+.danger{
+    background-color: $danger;
+    color: $black;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    &:hover{
+        background-color: $red-700;
+        color: $tertiary;
+    }
+    
+}
+
+.info{
+    background-color: $info;
+    color: $black;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    &:hover{
+        background-color: $violet-700;
+        color: $tertiary;
+    }
+}
+
+button, .button{
+    border: none;
+    padding: 5px;
+    margin: auto;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 18px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.center_btn{
+    text-align: center;
+    width: 15%;
+    position: relative;
+    margin: auto;
+    display: block;
+    margin-bottom: 10px;
+}
+/*#endregion*/

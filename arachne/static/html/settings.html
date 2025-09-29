@@ -1,0 +1,310 @@
+{% extends "skeleton.html" %}
+{% block title %}Settings{% endblock %}
+
+{% block header %}
+    <h1>Settings</h1>
+    <a class="back" href="javascript:void(0)" onclick="goBack()"><i class="fa-solid fa-circle-arrow-left"></i></a>
+{% endblock %}
+
+{% block content %}
+<div class="settings_body">
+    
+    <form id="settings_form" method="POST" action="/settings/">
+        {% csrf_token %}
+
+        <div class="saveloc">
+            <h2>Save Location</h2>
+            <h3>{{ data.savelocation }}</h3>
+            <!--<input class="saveloc_input" type="text">
+            <a href="javascript:void(0)" class="success submit_btn">Submit Path</a>-->
+        </div>
+
+        <div id="main_settings">
+            <h2>Options</h2>
+            <div class="options">
+                {% for setting in data.settings %}
+                <div id="{{setting.name}}">
+                    <div class="set_opt">
+                        <h3>{{ setting.label }}</h>
+                        <span class="set_tip">{{ setting.info }}</span>
+                    </div>
+                    <label class="switch">
+                        {% if setting.on == True %}
+                            <input name="{{setting.name}}" type='checkbox' checked/>
+                        {% else %}
+                            <input name="{{setting.name}}" type='checkbox'/>
+                        {% endif %}
+                        <span class='slider'></span>
+                    </label>
+                </div>
+
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="formats">
+            <div class="picformats">
+                <h4>Picture Formats</h4>
+
+                {% for form_name, form_save in data.picformats %}
+                    <div> 
+                        <label class="checkbox" for={{form_name}}>
+                            {% if form_save == True %}
+                                <input id={{form_name}} name={{form_name}} type="checkbox" checked>
+                            {% else %}
+                                <input id={{form_name}} name={{form_name}} type="checkbox">
+                            {% endif %}
+                            <span class="c_checkbox"></span>
+                        {{ form_name }} </label>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="vidformats">
+                <h4>Video Formats</h4>
+
+                {% for form_name, form_save in data.vidformats %}
+                    <div> 
+                        <label class="checkbox" for={{form_name}}>
+                            {% if form_save == True %}
+                                <input id={{form_name}} name={{form_name}} type="checkbox" checked>
+                            {% else %}
+                                <input id={{form_name}} name={{form_name}} type="checkbox">
+                            {% endif %}
+                            <span class="c_checkbox"></span>
+                        {{ form_name }} </label>
+                    </div>
+                {% endfor %}
+
+            </div>
+        </div>
+
+        <div class="rules">
+            <div class="rules_header">
+                <h2>Rules</h2>
+                <button type="button" class="warning right_btn" onclick="createRule()">Create Rule</button>
+            </div>
+
+            <div class="items_table">
+            <table class="main_table">
+            <tbody>
+                    {% for rule in data.rules %}
+                        <tr>
+                            <td>
+                                <label class="checkbox" for={{rule.id}}>
+                                    {% if rule.on == True %}
+                                        <input id={{rule.id}} name={{rule.id}} type="checkbox" checked>
+                                    {% else %}
+                                        <input id={{rule.id}} name={{rule.id}} type="checkbox">
+                                    {% endif %}
+                                    <span class="c_checkbox"></span>
+                                </label>
+                            </td>
+                            <td>{{ rule.get_choice1_label }}</td>
+                            <td>{{ rule.get_choice2_label }}</td>
+                            <td>{{ rule.get_choice3_label }}</td>
+                            <td>"{{rule.text}}"</td>
+                        </tr>
+                            
+                    {% endfor %}
+            </tbody>
+            </table>
+        </div>
+
+        </div>
+
+        <div class="saveset_cont">
+            <button class="success saveset" type="submit">Save</button>
+        </div>
+    </form>
+
+    </div>
+    <form id="rules_form" method="POST" action="/rules/">
+        {% csrf_token %}
+        <div id="rule_modal">
+            
+            <h2>Create new Rule</h2>
+
+            <div id="modal_content">
+                <select name="type" id="type" onchange="updateRulesSelect('type')">
+                    <option value="" selected disabled>Type</option>
+                    <option value="vid">Videos</option>
+                    <option value="pic">Pictures</option>
+                    <option value="abs">Absolute links</option>
+                    <option value="rel">Relative links</option>
+                </select>
+
+                <select name="choice1" id="choice1" onchange="updateRulesSelect('choice')">
+                    <option value="" selected disabled>Choice 1</option>
+                    <option value="LF">Look for</option>
+                    <option value="I">Ignore</option>
+                </select>
+
+                <select name="choice2" id="choice2" onchange="updateRulesSelect('choice')">
+                    <option value="" selected disabled>Choice 2</option>
+                </select>
+
+                <select name="choice3" id="choice3" onchange="updateRulesSelect('choice')">
+                    <option value="" selected disabled>Choice 3</option>
+
+                </select>
+
+                <input id="addInfo" name="addInfo" type="text" >
+            </div>
+
+            <div class="modal_buttons">
+                <button type="button" class="danger button" onclick="cancelRule()">Cancel</button>
+                <button class="success button" id="modal_delete">Save</button>
+            </div>
+
+        </div>
+
+    </form>
+    
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        window.onload = function(){
+            relatedLinks()
+            let typeChoice = document.getElementById("type");
+            typeChoice.selectIndex = -1;
+        }
+
+        document.getElementById("absolute_links").addEventListener("click", relatedLinks); 
+
+        function relatedLinks(){
+            const div = document.getElementById("absolute_links");
+            const checkbox = div.querySelector('input[type="checkbox"]');
+            if(checkbox.checked){
+                document.getElementById("related_links").style.display = "block"
+            }
+            else{
+                document.getElementById("related_links").style.display = "none"
+            }
+        }
+
+        function switchCheck(switch_id){
+            console.log(switch_id.checked)
+        }
+
+        function createRule(){
+            const modal = document.getElementById('rules_form')
+            modal.style.display = "flex"
+        }
+
+        function cancelRule(){
+            const modal = document.getElementById('rules_form')
+            modal.style.display = "none"
+        }
+
+        function updateRulesSelect(selectChoice){
+            let rules = document.getElementById("rules_form")
+
+            const choice1 = document.getElementById("choice1");
+            const choice2 = document.getElementById("choice2");
+            const choice3 = document.getElementById("choice3");
+
+            const addInfo = document.getElementById("addInfo")
+
+            let selects = [choice1, choice2, choice3];
+
+            const linkOptions2 = [
+                {value: 'T', label: 'Tag'},
+                {value: 'ID', label: 'Id'},
+                {value: 'C', label: 'Class'},
+            ]
+
+            const fileOptions2 = [
+                {value: 'N', label: 'Name'},
+            ]
+
+            const linkOptions3 = [
+                {value: 'IS', label: 'Is'},
+            ]
+
+            const fileOptions3 = [
+                {value: 'BW', label: 'Begins with'},
+                {value: 'EW', label: 'Ends with'},
+                {value: 'C', label: 'Contains'},
+            ]                   
+
+            selects.forEach(select => {
+                select.selectIndex = -1;
+            });
+
+            switch(selectChoice){
+                case 'type':
+                    let typeChoice = document.getElementById("type");
+                    let choice = typeChoice.value
+
+                    selects.forEach(select => {
+                        select.style.display = "inline"
+                    });
+
+                    if(choice=='vid' || choice=='pic'){
+                        choice2.innerHTML = '<option value="" selected disabled>Choice 2</option>'
+                        choice3.innerHTML = '<option value="" selected disabled>Choice 3</option>'
+
+                        fileOptions2.forEach(opt => {
+                            const option = document.createElement('option');
+                            option.value = opt.value;
+                            option.textContent = opt.label;
+                            choice2.appendChild(option)
+                        });
+
+                        fileOptions3.forEach(opt => {
+                            const option = document.createElement('option');
+                            option.value = opt.value;
+                            option.textContent = opt.label;
+                            choice3.appendChild(option)
+                        });
+                    }
+                    else if(choice=='rel' || choice=='abs'){
+                        choice2.innerHTML = '<option value="" selected disabled>Choice 2</option>'
+                        choice3.innerHTML = '<option value="" selected disabled>Choice 3</option>'
+
+                        linkOptions2.forEach(opt => {
+                            const option = document.createElement('option');
+                            option.value = opt.value;
+                            option.textContent = opt.label;
+                            choice2.appendChild(option)
+                        });
+
+                        linkOptions3.forEach(opt => {
+                            const option = document.createElement('option');
+                            option.value = opt.value;
+                            option.textContent = opt.label;
+                            choice3.appendChild(option)
+                        });
+                    }
+                        
+                    break;
+                case 'choice':
+                    let choicesSelected = 0
+                    
+                    selects.forEach(select => {
+                        if(select.value != ""){
+                            choicesSelected += 1
+                        }
+                    });
+
+                    if(choicesSelected == 3){
+                        addInfo.style.display = "block"
+                    }
+                    
+
+                break;
+            }
+
+
+            selects.forEach(select => {
+                if(select.options.length == 2){
+                    select.selectedIndex = 1;
+                }
+            });
+
+        }
+
+    </script>
+{% endblock %}

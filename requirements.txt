@@ -1,0 +1,6 @@
+beautifulsoup4==4.13.4
+Django==5.1.1
+django_background_tasks==1.2.8
+python-dotenv==1.1.1
+Requests==2.32.4
+selenium==4.34.2

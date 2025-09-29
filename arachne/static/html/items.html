@@ -1,0 +1,326 @@
+{% extends "skeleton.html" %}
+{% block title %}Items{% endblock %}
+{% block header %}
+    <h1>Site Items</h1>
+    
+    <a class="settings" href="/settings"><i class="fa-solid fa-gear"></i></a>
+    <a class="back" href="/"><i class="fa-solid fa-circle-arrow-left"></i></a>
+
+    <a href="/update/{{data.link_info.2}}" class="warning items_update" >Update Items</a>
+
+{% endblock %}
+
+{% block content %}
+
+    <div id="item_page">
+        <div id="info" class="link_info">   
+            <h2>Info
+                    <a href="javascript:void(0)" onclick="menuActivation('info', 'close')"><i id="info_down" class="fa-solid fa-caret-down"></i></a>
+                    <a href="javascript:void(0)" onclick="menuActivation('info', 'open')"><i id="info_up" class="fa-solid fa-caret-up"></i></a>
+            </h2>
+            <h3>Title: {{data.link_info.1}}</h2>
+            <h3>URL: <a class="url" href="{{data.link_info.0}}" target="_blank">{{data.link_info.0}}</a></h2>
+        </div>
+        
+        {% if data.parent_info %}
+            <div id="parent_info" class="link_info">
+                <h2>Parent Info
+                    <a href="javascript:void(0)" onclick="menuActivation('parent_info', 'close')"><i id="parent_info_down" class="fa-solid fa-caret-down"></i></a>
+                    <a href="javascript:void(0)" onclick="menuActivation('parent_info', 'open')"><i id="parent_info_up" class="fa-solid fa-caret-up"></i></a>
+                </h2>
+                <h3>Parent Title: {{data.parent_info.1}}</h2>
+                <h3>Parent URL: <a class="parent_url" href="{{data.parent_info.0}}" target="_blank">{{data.parent_info.0}}</a></h2>
+                
+                <a class="info button center_btn" href="/{{data.parent_info.2}}">Go To Parent Items</a>
+            </div>
+
+        {% endif %}
+
+        <div class="items_table">
+            <table class="main_table">
+            <thead>
+                <tr>
+                    <th>Delete</th>
+                    <th>ID</th>
+                    <th>Save</th>
+
+                    <th> 
+                        <label class="h_checkbox">Item
+                            <input type="checkbox" id="item_toggle" onchange="item_toggle()">
+                            <span class="hc_checkbox"></span>
+                        </label>   
+                    </th>
+
+                    <th>URL</th>
+                    <th>Grabbed</th>
+
+                    <th>
+                        <label class="h_checkbox">Saved
+                            <input type="checkbox" id="save_toggle" onchange="save_toggle()">
+                            <span class="hc_checkbox"></span>
+                        </label>         
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for link in data.items %}
+                    <tr onclick="click_row('{{ link.id }}')">
+                        <td><a href="javascript:void(0)" class="danger delete_btn" onclick="deleteConfirm('{{ link.id }}', 'Item')">Delete</a></td>
+                        <td>{{forloop.counter}}</td>
+                        <td>
+                            {% if link.type == 'abs' or link.type == 'rel' %}
+                                <a href="/sec_scrape/{{data.link_info.2}}/{{link.id}}" class="info item_btn">Scrape</a>
+                                <!--<label class="checkbox link_del">
+                                    <input id="{{link.id}}" type="checkbox">
+                                    <span class="c_checkbox"></span>
+                                </label>-->
+                            {% else %}
+                            <label class="checkbox" onclick="button_activation()">
+                                <input id="{{link.id}}" type="checkbox">
+                                <span class="c_checkbox"></span>
+                            </label>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if link.type == 'vid'%}
+                                <label for="{{link.id}}"><video class="item" src="{{link.url}}" loading="lazy" onclick="zoomItem(event, this)"><div></div></label>
+                            {% elif link.type == 'pic' %}
+                                <label for="{{link.id}}"><img class="item" src="{{link.url}}" loading="lazy" onclick="zoomItem(event, this)"><div></div></label>
+                            {% elif link.type == 'abs' or link.type == 'rel' %}
+                                <label for="{{link.id}}" class="item">{{link.type}}</label>
+                            {% endif %}
+                        </td>
+                        <td class="link_url"><a  href="{{link.url}}" target="_blank">{{link.url}}</a></td>
+
+                        
+                        <td>{{link.dateGrabbed}}</td>
+
+                        <td class="item_save">
+                            {% if link.saved == True %}
+                                {{link.dateSaved}}
+                            {% else %}
+                                Not Saved
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        </div>
+        
+        <div id="item_actions">
+
+
+            <div>   
+                <button id="ds_btn" class="danger" onclick="delete_ids()" disabled>Delete Selected</button>
+            </div>
+            <div class="right_btns">
+                <button id="dsa_btn" class="warning" onclick="deselectAll()" disabled>Deselect All</button>
+                <button class="info" onclick="selectAll()">Select All</button>
+                <button id="save_btn" class="success" onclick="save_ids()" disabled>Save</button>
+            </div>
+
+        </div>
+    </div>
+
+    
+
+    <form id="form_ids" method="POST">
+        {% csrf_token %}
+        <input name="save_form_input" id="save_form_input" type="text">
+    </form>
+
+    <div id="zoom">
+        
+    </div>
+
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            item_toggle();
+            save_toggle();
+        });
+
+        function save_ids(){
+            var inputs = document.getElementsByTagName('input')
+            var final_input = document.getElementById('save_form_input')
+
+            save_ids = ""
+            
+            for(var i=0; i<inputs.length; i++){
+                if(inputs[i].type=="checkbox" && inputs[i].checked && Number.isInteger(Number(inputs[i].id))){
+                    if(save_ids == ""){
+                        save_ids = inputs[i].id
+                    }
+                    else{
+                        save_ids = save_ids+","+inputs[i].id
+                    }   
+                }    
+            }
+            save_ids = "save,"+save_ids
+            final_input.value = save_ids
+            document.getElementById('form_ids').submit();
+
+        }
+
+        function click_row(item_id){
+            const item = document.getElementById(item_id)
+
+            if(item.checked == true){
+                item.checked = false
+            }
+            else{
+                item.checked = true;
+            }
+            
+            button_activation();
+        }
+
+        function delete_ids(){
+            var inputs = document.getElementsByTagName('input')
+            var final_input = document.getElementById('save_form_input')
+
+            save_ids = ""
+            
+            for(var i=0; i<inputs.length; i++){
+                if(inputs[i].type=="checkbox" && inputs[i].checked){
+                    console.log(inputs[i].id)
+                    if(save_ids == ""){
+                        save_ids = inputs[i].id
+                    }
+                    else{
+                        save_ids = save_ids+","+inputs[i].id
+                    }   
+                }    
+            }
+            save_ids = "delete,"+save_ids
+            final_input.value = save_ids
+            document.getElementById('form_ids').submit();
+
+        }
+
+        function selectAll(){
+            var inputs = document.getElementsByTagName('input')
+
+            for(var i=0; i<inputs.length; i++){
+                if(inputs[i].type=="checkbox"){
+                    inputs[i].checked = true
+                }    
+            }
+            button_activation();
+        }
+
+        function deselectAll(){
+            var inputs = document.getElementsByTagName('input')
+
+            
+
+            for(var i=0; i<inputs.length; i++){
+                if(inputs[i].type=="checkbox"){
+                    inputs[i].checked = false
+                }    
+            }
+            button_activation();
+        }
+
+        function button_activation(){
+            var inputs = document.getElementsByTagName('input')
+            var final_input = document.getElementById('save_form_input')
+
+            const delete_sel_btn = document.getElementById("ds_btn")
+            const desel_all_btn = document.getElementById("dsa_btn")
+            const save_btn = document.getElementById("save_btn")
+            
+            for(var i=0; i<inputs.length; i++){
+                if(inputs[i].type=="checkbox" && inputs[i].checked){
+                    delete_sel_btn.disabled = false;
+                    desel_all_btn.disabled = false;
+                    save_btn.disabled = false;
+                    return
+                }
+
+            }
+            delete_sel_btn.disabled = true
+            desel_all_btn.disabled = true
+            save_btn.disabled = true
+        }
+
+        function item_toggle(){
+            let toggle = document.getElementById("item_toggle")
+            const items = document.querySelectorAll(".item")
+
+            if(toggle.checked){
+                items.forEach(item => {
+                    item.style.display = "block";
+                });
+            }
+            else{
+                items.forEach(item => {
+                    item.style.display = "none";
+                });
+            }
+        }
+
+        function save_toggle(){
+            let toggle = document.getElementById("save_toggle")
+            const saves = document.querySelectorAll(".item_save")
+
+            if(toggle.checked){
+                saves.forEach(save => {
+                    const row = save.closest('tr');
+                    if(save.innerHTML.trim() != "Not Saved"){
+                        row.style.display = "none"
+                    }
+                });
+            }
+            else{
+                saves.forEach(save => {
+                    const row = save.closest('tr');
+                    row.style.display = "table-row"
+                });
+            }
+        }
+
+        function zoomItem(e, itemElement){
+            e.stopPropagation();
+
+            let zoom = document.getElementById("zoom");
+            const src = itemElement.getAttribute('src');
+
+            zoom.style.display = "flex"
+
+            const extension = src.split('.').pop().toLowerCase();
+
+            const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+            const videoExtensions = ['mp4', 'webm', 'ogg', 'mov', 'mkv'];
+
+            if (imageExtensions.includes(extension)) {
+                zoom.innerHTML = `  <i class="fa-solid fa-x" onclick=unZoom()></i>
+                                    <img class='zoom_item' src="${src}" >
+                                `
+                //return 'image';
+            } else if (videoExtensions.includes(extension)) {
+                zoom.innerHTML = `  <i class="fa-solid fa-x" onclick=unZoom()></i>
+                                    <video class='zoom_item' src="${src}" controls>
+                                `
+                //return 'video';
+            } else {
+                return 'unknown';
+            }
+
+            console.log(src)
+
+        }
+
+        function unZoom(){
+            let zoom = document.getElementById("zoom");
+            zoom.innerHTML = ""
+
+            zoom.style.display = "none"
+        }
+
+    </script>
+{% endblock %}

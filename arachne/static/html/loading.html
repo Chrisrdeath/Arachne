@@ -1,0 +1,27 @@
+{% extends "skeleton.html" %}
+{% block title %}Loading{% endblock %}
+
+{% block header %}
+    <h1>{{data}}</h1>
+{% endblock %}
+
+{% block content %}
+    <div class="loader">
+        <i class="fa-solid fa-spinner"></i>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        function checkTaskStatus() {
+            fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    }
+                });
+        }
+
+        setInterval(checkTaskStatus, 2000); // check every 2 seconds
+    </script>
+{% endblock %}
