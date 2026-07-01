@@ -3,7 +3,7 @@ window.onload = function() {
     const currUrl = window.location.href;
     const prevUrl = sessionStorage.getItem('currWindow');
 
-    if (prevUrl && prevUrl !== currUrl) {
+    if (prevUrl && prevUrl !== window.location.href) {
         sessionStorage.setItem('prevWindow', prevUrl);
     }
 

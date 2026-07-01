@@ -1,204 +1,304 @@
 @use 'sass:color';
 
+/*#region Colors*/
 $primary: #750B25;
-
 $secondary:#51304e;
-$tertiary: #e0e0e0;
-//$tertiary: #a49e9e;
-$quaternary: #236637;
+$tertiary: #236637;
+$quaternary: #ffa229;
+//$quinary:
+//$senary:
+//$septenary:
+//$octonary:
+//$nonary:
+//$decenary:
+//$undenary:
+//$duodenary:
 
-//$secondary: #51304e;
-//$tertiary: #a49e9e;
-//$quaternary: #0a1810;
-
-$dark: #3a363b;
+$dark: #0a0a0a;
 $light: #d1d5d0;
-
-//$secondary: #343a40;
-//$tertiary : #f8f9fa;
 
 $white: #fff;
 $black: #000;
+/*#endregion*/
 
-$red: #dc3545;
-$orange: #fd7e14; 
-$yellow: #ffc107;
-$green: #28a745;
-$blue: #007bff;
-$indigo: #6610f2;
-$violet: #6f42c1;
+/*#region Color Mixes*/
+$primary-10: color.mix($primary, $white, 20%);
+$primary-20: color.mix($primary, $white, 40%);
+$primary-30: color.mix($primary, $white, 60%);
+$primary-40: color.mix($primary, $white, 80%);
+$primary-50: $primary;
+$primary-60: color.mix($primary, $black, 80%);
+$primary-70: color.mix($primary, $black, 60%);
+$primary-80: color.mix($primary, $black, 40%);
+$primary-90: color.mix($primary, $black, 20%);
+
+$secondary-10: color.mix($secondary, $white, 20%);
+$secondary-20: color.mix($secondary, $white, 40%);
+$secondary-30: color.mix($secondary, $white, 60%);
+$secondary-40: color.mix($secondary, $white, 80%);
+$secondary-50: $secondary;
+$secondary-60: color.mix($secondary, $black, 80%);
+$secondary-70: color.mix($secondary, $black, 60%);
+$secondary-80: color.mix($secondary, $black, 40%);
+$secondary-90: color.mix($secondary, $black, 20%);
+
+$tertiary-10: color.mix($tertiary, $white, 20%);
+$tertiary-20: color.mix($tertiary, $white, 40%);
+$tertiary-30: color.mix($tertiary, $white, 60%);
+$tertiary-40: color.mix($tertiary, $white, 80%);
+$tertiary-50: $tertiary;
+$tertiary-60: color.mix($tertiary, $black, 80%);
+$tertiary-70: color.mix($tertiary, $black, 60%);
+$tertiary-80: color.mix($tertiary, $black, 40%);
+$tertiary-90: color.mix($tertiary, $black, 20%);
+
+$quaternary-10: color.mix($quaternary, $white, 20%);
+$quaternary-20: color.mix($quaternary, $white, 40%);
+$quaternary-30: color.mix($quaternary, $white, 60%);
+$quaternary-40: color.mix($quaternary, $white, 80%);
+$quaternary-50: $quaternary;
+$quaternary-60: color.mix($quaternary, $black, 80%);
+$quaternary-70: color.mix($quaternary, $black, 60%);
+$quaternary-80: color.mix($quaternary, $black, 40%);
+$quaternary-90: color.mix($quaternary, $black, 20%);
+
+$success: $tertiary;
+$warning: $quaternary;
+$danger: color.scale($primary, $lightness: 15%, $saturation: 50%);
+$info: $secondary;
+
+$success-activation: color.scale($success, $lightness: 15%, $saturation: 50%);
+$warning-activation: color.scale($warning, $lightness: 5%, $saturation: 50%);
+$danger-activation: color.scale($danger, $lightness: 15%, $saturation: 50%);
+$info-activation: color.scale($info, $lightness: 10%, $saturation: 40%);
+
+
+/*#endregion*/
 
 @font-face {
-    font-family: 'Roboto';
-    src: url(../fonts/Roboto.ttf) format('ttf');
+    font-family: 'Roboto Mono';
+    src: url('../fonts/RobotoMono-VariableFont_wght.ttf') format('truetype');
     font-weight: 100 900;
     font-style: normal;
     font-display: swap;
 }
 
-/*#region Color Mixes*/
-$primary-10: color.mix($primary, $black, 40%);
-$primary-20: color.mix($primary, $black, 60%);
-$primary-30: color.mix($primary, $black, 80%);
-$primary-40: color.mix($primary, $white, 80%);
-$primary-50: color.mix($primary, $white, 60%);
-$primary-60: color.mix($primary, $white, 40%);
+/*#region Glass*/
+@mixin term-glass{
+    color: $primary;
+    background-color: rgba(5, 5, 5, .7);
+    backdrop-filter: blur(8px) saturate(180%);
 
-$secondary-10: color.mix($secondary, $white, 80%);
-$secondary-20: color.mix($secondary, $white, 60%);
-$secondary-30: color.mix($secondary, $white, 40%);
+    border: 1px solid rgba($primary, .5);;
 
-$tertiary-10: color.mix($tertiary, $black, 80%);
-$tertiary-20: color.mix($tertiary, $black, 60%);
-$tertiary-30: color.mix($tertiary, $black, 50%);
+    box-shadow: 
+        0 0 0 1px rgba($primary, 0.3),
+        0 0 12px rgba($primary, 0.3),
+        0 4px 24px rgba($primary, 0.3);
 
-$red-100: color.mix($red, $white, 20%);
-$red-200: color.mix($red, $white, 40%);
-$red-300: color.mix($red, $white, 60%);
-$red-400: color.mix($red, $white, 80%);
-$red-500: $red;
-$red-600: color.mix($red, $black, 80%);
-$red-700: color.mix($red, $black, 60%);
-$red-800: color.mix($red, $black, 40%);
-$red-900: color.mix($red, $black, 20%);
+}
 
-$orange-100: color.mix($orange, $white, 20%);
-$orange-200: color.mix($orange, $white, 40%);
-$orange-300: color.mix($orange, $white, 60%);
-$orange-400: color.mix($orange, $white, 80%);
-$orange-500: $orange;
-$orange-600: color.mix($orange, $black, 80%);
-$orange-700: color.mix($orange, $black, 60%);
-$orange-800: color.mix($orange, $black, 40%);
-$orange-900: color.mix($orange, $black, 20%);
+@mixin glass-btn-variant($color, $hover-color){
+    cursor: pointer;
+    color: $light;
+    background-color: rgba($color, .5);
+    backdrop-filter: blur(8px) saturate(180%);
 
-$yellow-100: color.mix($yellow, $white, 20%);
-$yellow-200: color.mix($yellow, $white, 40%);
-$yellow-300: color.mix($yellow, $white, 60%);
-$yellow-400: color.mix($yellow, $white, 80%);
-$yellow-500: $yellow;
-$yellow-600: color.mix($yellow, $black, 80%);
-$yellow-700: color.mix($yellow, $black, 60%);
-$yellow-800: color.mix($yellow, $black, 40%);
-$yellow-900: color.mix($yellow, $black, 20%);
+    border: 1px solid $color;
 
-$green-100: color.mix($green, $white, 20%);
-$green-200: color.mix($green, $white, 40%);
-$green-300: color.mix($green, $white, 60%);
-$green-400: color.mix($green, $white, 80%);
-$green-500: $green;
-$green-600: color.mix($green, $black, 80%);
-$green-700: color.mix($green, $black, 60%);
-$green-800: color.mix($green, $black, 40%);
-$green-900: color.mix($green, $black, 20%);
+    box-shadow: 
+        0 0 0 1px rgba($color, 0.5),
+        0 0 12px rgba($color, 0.6),
+        0 4px 24px rgba($color, 0.7);
 
-$blue-100: color.mix($blue, $white, 20%);
-$blue-200: color.mix($blue, $white, 40%);
-$blue-300: color.mix($blue, $white, 60%);
-$blue-400: color.mix($blue, $white, 80%);
-$blue-500: $blue;
-$blue-600: color.mix($blue, $black, 80%);
-$blue-700: color.mix($blue, $black, 60%);
-$blue-800: color.mix($blue, $black, 40%);
-$blue-900: color.mix($blue, $black, 20%);
+    transition: all 0.2s ease;
 
-$indigo-100: color.mix($indigo, $white, 20%);
-$indigo-200: color.mix($indigo, $white, 40%);
-$indigo-300: color.mix($indigo, $white, 60%);
-$indigo-400: color.mix($indigo, $white, 80%);
-$indigo-500: $indigo;
-$indigo-600: color.mix($indigo, $black, 80%);
-$indigo-700: color.mix($indigo, $black, 60%);
-$indigo-800: color.mix($indigo, $black, 40%);
-$indigo-900: color.mix($indigo, $black, 20%);
+    &:hover {
+        background-color: rgba($hover-color, .7);
+        backdrop-filter: blur(8px) saturate(100%);
 
-$violet-100: color.mix($violet, $white, 20%);
-$violet-200: color.mix($violet, $white, 40%);
-$violet-300: color.mix($violet, $white, 60%);
-$violet-400: color.mix($violet, $white, 80%);
-$violet-500: $violet;
-$violet-600: color.mix($violet, $black, 80%);
-$violet-700: color.mix($violet, $black, 60%);
-$violet-800: color.mix($violet, $black, 40%);
-$violet-900: color.mix($violet, $black, 20%);
+        color: $light;
+        border: 1px solid $hover-color;
+
+        box-shadow: 
+            0 0 0 1px rgba($hover-color, 0.5),
+            0 0 12px rgba($hover-color, 0.6),
+            0 4px 24px rgba($hover-color, 0.7);
+    }
+
+    &:disabled {
+        pointer-events: none;
+
+        background-color: rgba(0, 0, 0, .3);
+        backdrop-filter: blur(8px) saturate(180%);
+
+        border: 1px solid rgba($color, .7);
+
+        box-shadow: 
+            0 0 0 1px rgba(0, 0, 0, 0.5),
+            0 0 12px rgba(0, 0, 0, 0.6),
+            0 4px 24px rgba(0, 0, 0, 0.7);
+
+    }
+
+    &:focus-visible{
+        background-color: rgba($hover-color, .6);
+        backdrop-filter: blur(8px) saturate(100%);
+
+        color: $light;
+        border: 1px solid rgba($hover-color, .5);
+
+        box-shadow: 
+            0 0 0 1px rgba($hover-color, 0.3),
+            0 0 12px rgba($hover-color, 0.4),
+            0 4px 24px rgba($hover-color, 0.5);
+    }
+}
+
+
+
+@mixin glass-btn{
+    //animation: blink 1s 1s;
+    display: inline;
+    //cursor: pointer;
+    color: $light;
+    background-color: rgba(5, 5, 5, .7);
+    backdrop-filter: blur(8px) saturate(180%);
+
+    border: 1px solid $primary;
+
+    box-shadow: 
+        0 0 0 1px rgba($primary, 0.5),
+        0 0 12px rgba($primary, 0.6),
+        0 4px 24px rgba($primary, 0.7);
+    
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: rgba($secondary, .78);
+        backdrop-filter: blur(8px) saturate(100%);
+
+        color: $light;
+        border: 1px solid $secondary-40;
+
+        box-shadow: 
+        0 0 0 1px rgba($secondary-40, 0.5),
+        0 0 12px rgba($secondary-40, 0.6),
+        0 4px 24px rgba($secondary-40, 0.7);
+    }
+}
+
+.glass-btn.success{
+    @include glass-btn-variant($success, $success-activation);
+}
+
+.glass-btn.warning{
+    @include glass-btn-variant($warning, $warning-activation);
+}
+
+.glass-btn.danger{
+    @include glass-btn-variant($danger, $danger-activation);
+}
+
+.glass-btn.info{
+    @include glass-btn-variant($info, $info-activation);
+}
+
+
+
 /*#endregion*/
 
-/*#region buttons*/
 
-$success: $green-500;
-$warning: $yellow-500;
-$danger: $red-500;
-$info: $violet-500;
+h1, h2, h3 {
+    text-transform: uppercase;
 
-/*
-width: 80%;
-margin: auto;
-box-shadow: rgba(0, 0, 0, 0.1);
-backdrop-filter: blur(7.5px);
-border-radius: 16px;
-border: 1px solid rgba(255, 255, 255, 0.3);
-padding: 10px;
-border-spacing: 0;
-*/
-
-.success{
-    background-color: $success;
-    color: $black;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    &:hover{
-        background-color: $green-700;
-        color: $tertiary;
-    }
+    text-shadow: 
+        1px 1px 0 rgba(0, 0, 0, 0.8),
+        0 0 8px rgba(117, 11, 37, 0.3);
 }
 
-.warning{
-    background-color: $warning;
-    color: $black;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    &:hover{
-        background-color: $yellow-700;
-        color: $tertiary;
-    }
+// Terminal-style blinking cursor
+.blinking-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 1.2em;
+  background-color: #750B25;
+  margin-left: 4px;
+  animation: blink 1s infinite;
+  vertical-align: middle;
 }
 
-.danger{
-    background-color: $danger;
-    color: $black;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    &:hover{
-        background-color: $red-700;
-        color: $tertiary;
-    }
-    
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
-.info{
-    background-color: $info;
-    color: $black;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    &:hover{
-        background-color: $violet-700;
-        color: $tertiary;
-    }
+/*#region Custom*/
+::selection{
+    background-color: rgba($primary, .7);
+    color: $light;
 }
 
-button, .button{
-    border: none;
-    padding: 5px;
-    margin: auto;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 18px;
-    border-radius: 5px;
-    text-decoration: none;
-}
+input{
+    @include term-glass;
 
-.center_btn{
     text-align: center;
-    width: 15%;
-    position: relative;
-    margin: auto;
-    display: block;
-    margin-bottom: 10px;
+    color: $light;
+
+    &:focus{
+        outline: 3px solid $primary;
+        box-shadow: 
+            0 0 0 1px rgba($primary, 0.5),
+            0 0 12px rgba($primary, 0.6),
+            0 4px 24px rgba($primary, 0.7);
+    }
 }
+
+select{
+    @include term-glass();
+
+    color: $light;
+
+    &:focus{
+        outline: 3px solid $primary;
+        box-shadow: 
+            0 0 0 1px rgba($primary, 0.5),
+            0 0 12px rgba($primary, 0.6),
+            0 4px 24px rgba($primary, 0.7);
+    }
+
+    option{
+        background-color: $dark;
+        color: $light; 
+        padding: 0.5rem;
+        font-family: monospace;
+
+        &:hover{
+            color: $primary
+        }
+    }
+}
+
+.btn-check-box{
+    display: none;
+
+    // When checked, target the NEXT sibling label with .glass-btn.info
+    &:checked ~ label.glass-btn.info {
+        @include glass-btn-variant($info, $info-activation);
+
+        background-color: rgba($info, .9);
+        backdrop-filter: blur(8px) saturate(100%);
+
+        color: $light;
+        border: 1px solid $info;
+
+        box-shadow: 
+            0 0 0 1px rgba($dark, 0.5),
+            0 0 12px rgba($dark, 0.6),
+            0 4px 24px rgba($dark, 0.7);
+    }
+}
+
+
+
 /*#endregion*/

@@ -1,72 +1,107 @@
-{% extends "skeleton.html" %}
-{% block title %}Items{% endblock %}
+{% extends "skeleton_no_nav.html" %}
 {% block header %}
-    <h1>Site Items</h1>
+    <div class="item_header">
+        <a class="back" href="/back/{{data.link_info.2}}/"><i class="fa-solid fa-circle-arrow-left"></i></a>
+        <a id="dash_nav" href="/">
+            <i class="fa-sharp fa-solid fa-house"></i>
+            Dashboard
+            
+        </a>
+    </div>
     
-    <a class="settings" href="/settings"><i class="fa-solid fa-gear"></i></a>
-    <a class="back" href="/"><i class="fa-solid fa-circle-arrow-left"></i></a>
-
-    <a href="/update/{{data.link_info.2}}" class="warning items_update" >Update Items</a>
-
 {% endblock %}
 
 {% block content %}
+    
 
     <div id="item_page">
-        <div id="info" class="link_info">   
-            <h2>Info
-                    <a href="javascript:void(0)" onclick="menuActivation('info', 'close')"><i id="info_down" class="fa-solid fa-caret-down"></i></a>
-                    <a href="javascript:void(0)" onclick="menuActivation('info', 'open')"><i id="info_up" class="fa-solid fa-caret-up"></i></a>
-            </h2>
-            <h3>Title: {{data.link_info.1}}</h2>
-            <h3>URL: <a class="url" href="{{data.link_info.0}}" target="_blank">{{data.link_info.0}}</a></h2>
-        </div>
-        
-        {% if data.parent_info %}
-            <div id="parent_info" class="link_info">
-                <h2>Parent Info
-                    <a href="javascript:void(0)" onclick="menuActivation('parent_info', 'close')"><i id="parent_info_down" class="fa-solid fa-caret-down"></i></a>
-                    <a href="javascript:void(0)" onclick="menuActivation('parent_info', 'open')"><i id="parent_info_up" class="fa-solid fa-caret-up"></i></a>
+
+        <div class="info-divs">
+            <div id="info" class="link_info">   
+                <h2>Info
+                        <a href="javascript:void(0)" onclick="menuActivation('info', 'close')"><i id="info_down" class="fa-solid fa-caret-down"></i></a>
+                        <a href="javascript:void(0)" onclick="menuActivation('info', 'open')"><i id="info_up" class="fa-solid fa-caret-up"></i></a>
                 </h2>
-                <h3>Parent Title: {{data.parent_info.1}}</h2>
-                <h3>Parent URL: <a class="parent_url" href="{{data.parent_info.0}}" target="_blank">{{data.parent_info.0}}</a></h2>
-                
-                <a class="info button center_btn" href="/{{data.parent_info.2}}">Go To Parent Items</a>
+                <h3>Title: {{data.link_info.1}}</h2>
+                <h3>URL: <a class="url" href="{{data.link_info.0}}" target="_blank">{{data.link_info.0}}</a></h2>
+            </div>
+            
+            {% if data.parent_info %}
+                <div id="parent_info" class="link_info">
+                    <h2>Parent Info
+                        <a href="javascript:void(0)" onclick="menuActivation('parent_info', 'close')"><i id="parent_info_down" class="fa-solid fa-caret-down"></i></a>
+                        <a href="javascript:void(0)" onclick="menuActivation('parent_info', 'open')"><i id="parent_info_up" class="fa-solid fa-caret-up"></i></a>
+                    </h2>
+                    <h3>Parent Title: {{data.parent_info.1}}</h2>
+                    <h3>Parent URL: <a class="parent_url" href="{{data.parent_info.0}}" target="_blank">{{data.parent_info.0}}</a></h2>
+                    
+                    <a class="info button center_btn" href="/{{data.parent_info.2}}">Go To Parent Items</a>
+                </div>
+
+            {% endif %}
+
+        </div>
+
+        <div id="toolbar">
+            <div class="item-numbers">
+                {% if data.item_info.pics > 0 %}
+                    <h3>Pictures: {{data.item_info.pics}}</h3>
+                {% endif %}
+
+                {% if data.item_info.vids > 0 %}
+                    <h3>Videos: {{data.item_info.vids}}</h3>
+                {% endif %}
+
+                {% if data.item_info.abss > 0 %}
+                    <h3>Absolute Links: {{data.item_info.abss}}</h3>
+                {% endif %}
+
+                {% if data.item_info.rels > 0 %}
+                    <h3>Relative Links:{{data.item_info.rels}}</h3>
+                {% endif %}
             </div>
 
-        {% endif %}
+            <div id="tools">
+                <a class="update-items-btn glass-btn warning" href="/update/{{data.link_info.2}}/"><i class="fa-solid fa-arrows-rotate"></i>Update Items</a>
+
+                <div class="item-util-btns">
+                    <input type="checkbox" class="btn-check-box" id="save_toggle" autocomplete="off" onchange="save_toggle()">
+                    <label class="btn-check glass-btn info" for="save_toggle">Hide Saved</label>
+                </div>
+
+                <div class="item-util-btns">
+                    <input type="checkbox" class="btn-check-box" id="save_toggle" autocomplete="off" onchange="save_toggle()">
+                    <label class="btn-check glass-btn info" for="save_toggle">Show Items</label>
+                </div>
+
+                
+            </div>
+
+        </div>
 
         <div class="items_table">
             <table class="main_table">
             <thead>
                 <tr>
                     <th>Delete</th>
+                    <th>Item Num</th>
                     <th>ID</th>
                     <th>Save</th>
-
-                    <th> 
-                        <label class="h_checkbox">Item
-                            <input type="checkbox" id="item_toggle" onchange="item_toggle()">
-                            <span class="hc_checkbox"></span>
-                        </label>   
-                    </th>
-
+                    <th class="item-column">Item</th>
                     <th>URL</th>
                     <th>Grabbed</th>
 
                     <th>
-                        <label class="h_checkbox">Saved
-                            <input type="checkbox" id="save_toggle" onchange="save_toggle()">
-                            <span class="hc_checkbox"></span>
-                        </label>         
+                        Saved      
                     </th>
                 </tr>
             </thead>
             <tbody>
                 {% for link in data.items %}
                     <tr onclick="click_row('{{ link.id }}')">
-                        <td><a href="javascript:void(0)" class="danger delete_btn" onclick="deleteConfirm('{{ link.id }}', 'Item')">Delete</a></td>
+                        <td><button type="button" class="delete-btn glass-btn danger" onclick="event.stopPropagation(); deleteConfirm('{{ link.id }}', 'Item')">Delete</button></td>
                         <td>{{forloop.counter}}</td>
+                        <td>{{link.id}}</td>
                         <td>
                             {% if link.type == 'abs' or link.type == 'rel' %}
                                 <a href="/sec_scrape/{{data.link_info.2}}/{{link.id}}" class="info item_btn">Scrape</a>
@@ -76,19 +111,20 @@
                                 </label>-->
                             {% else %}
                             <label class="checkbox" onclick="button_activation()">
-                                <input id="{{link.id}}" type="checkbox">
+                                <input class="item_checkbox" id="{{link.id}}" type="checkbox">
                                 <span class="c_checkbox"></span>
                             </label>
                             {% endif %}
                         </td>
-                        <td>
+                        <td id="items" class="item-column">
+                            <!--
                             {% if link.type == 'vid'%}
                                 <label for="{{link.id}}"><video class="item" src="{{link.url}}" loading="lazy" onclick="zoomItem(event, this)"><div></div></label>
                             {% elif link.type == 'pic' %}
                                 <label for="{{link.id}}"><img class="item" src="{{link.url}}" loading="lazy" onclick="zoomItem(event, this)"><div></div></label>
                             {% elif link.type == 'abs' or link.type == 'rel' %}
                                 <label for="{{link.id}}" class="item">{{link.type}}</label>
-                            {% endif %}
+                            {% endif %}-->
                         </td>
                         <td class="link_url"><a  href="{{link.url}}" target="_blank">{{link.url}}</a></td>
 
@@ -112,12 +148,12 @@
 
 
             <div>   
-                <button id="ds_btn" class="danger" onclick="delete_ids()" disabled>Delete Selected</button>
+                <button id="ds_btn" class="glass-btn danger" onclick="delete_ids()" disabled>Delete Selected</button>
             </div>
             <div class="right_btns">
-                <button id="dsa_btn" class="warning" onclick="deselectAll()" disabled>Deselect All</button>
-                <button class="info" onclick="selectAll()">Select All</button>
-                <button id="save_btn" class="success" onclick="save_ids()" disabled>Save</button>
+                <button id="dsa_btn" class="glass-btn warning" onclick="deselectAll()" disabled>Deselect All</button>
+                <button class="glass-btn info" onclick="selectAll()">Select All</button>
+                <button id="save_btn" class="glass-btn success" onclick="save_ids()" disabled>Save</button>
             </div>
 
         </div>
@@ -142,7 +178,13 @@
         document.addEventListener("DOMContentLoaded", function () {
             item_toggle();
             save_toggle();
+            nav_select();
         });
+
+        function nav_select(){
+            var nav = document.getElementById("home_nav")
+            nav.classList.add("nav_selected")
+        }
 
         function save_ids(){
             var inputs = document.getElementsByTagName('input')
@@ -202,14 +244,17 @@
 
         }
 
-        function selectAll(){
-            var inputs = document.getElementsByTagName('input')
-
-            for(var i=0; i<inputs.length; i++){
-                if(inputs[i].type=="checkbox"){
-                    inputs[i].checked = true
-                }    
+        function selectAll() {
+            // More efficient selector
+            const checkboxes = document.querySelectorAll('.item_checkbox[type="checkbox"]');
+            
+            for (let i = 0; i < checkboxes.length; i++) {
+                // Check className with includes() for multiple classes
+                if (checkboxes[i].classList.contains('item_checkbox')) {
+                    checkboxes[i].checked = true;
+                }
             }
+            
             button_activation();
         }
 

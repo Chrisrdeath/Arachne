@@ -1,5 +1,14 @@
 # Arachne - Django Webscraper
-A Webscraper that allows you to scrape webpages for pictures and videos as well as relative links and absolute links to allow for a spider web of link scraping
+A webscraper that allows you to scrape webpages for direct media for archiving.
+
+Designed with horizontal expansion in mind, including scraping link structures and streaming video platforms.
+
+# Arachne works on
+- Serverside Rendered Pages
+- Squarespace Pages
+- Forums
+- Angular Sites
+
 
 ## Prerequisites
 Gecko Driver - https://github.com/mozilla/geckodriver/releases

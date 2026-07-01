@@ -1,17 +1,31 @@
-{% extends "skeleton.html" %}
-{% block title %}Loading{% endblock %}
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width", user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-{% block header %}
-    <h1>{{data}}</h1>
-{% endblock %}
+    <title>Loading</title>
 
-{% block content %}
-    <div class="loader">
-        <i class="fa-solid fa-spinner"></i>
-    </div>
-{% endblock %}
+    <link rel="icon" type="image/x-icon" href="{% static '/imgs/spider.ico' %}">
 
-{% block scripts %}
+    <link rel="stylesheet" href="{% static '/css/loading.css' %}">
+    <link rel="stylesheet" href="{% static '/fontawesome/all.css' %}">
+    
+</head>
+<body id="loading-bg">
+    <header>
+        <h1>{{data}}</h1>
+    </header>
+
+    <footer>
+        <a class="footer_link" href="https://github.com/Chrisrdeath" target="_blank">&copy; 2025 Christopher Death</a>
+    </footer>
+
+    <script src="{% static '/js/main.js' %}"></script>
+
     <script>
         function checkTaskStatus() {
             fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
@@ -24,4 +38,9 @@
 
         setInterval(checkTaskStatus, 2000); // check every 2 seconds
     </script>
-{% endblock %}
+
+</body>
+
+
+
+</html>

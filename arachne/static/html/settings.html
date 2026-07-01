@@ -3,7 +3,7 @@
 
 {% block header %}
     <h1>Settings</h1>
-    <a class="back" href="javascript:void(0)" onclick="goBack()"><i class="fa-solid fa-circle-arrow-left"></i></a>
+    <a href="javascript:void(0)" class="back_btn glass-btn danger" onclick="goBack()"><i class="fa-solid fa-circle-arrow-left"></i></a>
 {% endblock %}
 
 {% block content %}
@@ -12,18 +12,17 @@
     <form id="settings_form" method="POST" action="/settings/">
         {% csrf_token %}
 
-        <div class="saveloc">
+        <div class="header_card">
             <h2>Save Location</h2>
             <h3>{{ data.savelocation }}</h3>
-            <!--<input class="saveloc_input" type="text">
-            <a href="javascript:void(0)" class="success submit_btn">Submit Path</a>-->
+
         </div>
 
-        <div id="main_settings">
+        <div class="header_card">
             <h2>Options</h2>
-            <div class="options">
+            <div id="options">
                 {% for setting in data.settings %}
-                <div id="{{setting.name}}">
+                <div class="option_item" id="{{setting.name}}">
                     <div class="set_opt">
                         <h3>{{ setting.label }}</h>
                         <span class="set_tip">{{ setting.info }}</span>
@@ -42,8 +41,9 @@
             </div>
         </div>
 
-        <div class="formats">
-            <div class="picformats">
+        <div class="format_card">
+            <h3>Formats</h3>
+            <div class="formats">
                 <h4>Picture Formats</h4>
 
                 {% for form_name, form_save in data.picformats %}
@@ -60,7 +60,7 @@
                 {% endfor %}
             </div>
 
-            <div class="vidformats">
+            <div class="formats">
                 <h4>Video Formats</h4>
 
                 {% for form_name, form_save in data.vidformats %}
@@ -79,10 +79,10 @@
             </div>
         </div>
 
-        <div class="rules">
+        <div class="header_card">
             <div class="rules_header">
                 <h2>Rules</h2>
-                <button type="button" class="warning right_btn" onclick="createRule()">Create Rule</button>
+                <button type="button" class="glass-btn info" onclick="createRule()">Create Rule</button>
             </div>
 
             <div class="items_table">
@@ -113,13 +113,13 @@
 
         </div>
 
-        <div class="saveset_cont">
-            <button class="success saveset" type="submit">Save</button>
+        <div class="save_settings_btn">
+            <button class="glass-btn success saveset" type="submit">Save</button>
         </div>
     </form>
 
     </div>
-    <form id="rules_form" method="POST" action="/rules/">
+    <form id="new_rule_card" method="POST" action="/rules/">
         {% csrf_token %}
         <div id="rule_modal">
             
@@ -165,6 +165,17 @@
 
 {% block scripts %}
     <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+            nav_select();
+        });
+
+        function nav_select(){
+            var nav = document.getElementById("settings_nav")
+            nav.classList.add("nav_selected")
+        }
+
+
         window.onload = function(){
             relatedLinks()
             let typeChoice = document.getElementById("type");

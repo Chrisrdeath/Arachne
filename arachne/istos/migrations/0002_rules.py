@@ -2,15 +2,16 @@
 
 from django.db import migrations, models
 
+from static.libs.test import db_test
+
 def populate(apps, schema_editor):
     rules = {
-        ('pic', "I", "N", "C", "thumbnail"),
-        ('pic', "I", "N", "C", "thumb")
+        ('media', "exclude", "name", "contains", "icon"),
     }
 
     Rules = apps.get_model('istos', 'Rules')
     for rule in rules:
-        obj = Rules(type=rule[0], choice1=rule[1], choice2=rule[2], choice3=rule[3], text=rule[4])
+        obj = Rules(rule_type=rule[0], action_choice=rule[1], selector_type=rule[2], match_type=rule[3], text=rule[4])
         obj.save()
 
 
@@ -26,12 +27,13 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('on', models.BooleanField(default=True)),
-                ('type', models.CharField(choices=[('vid', 'vid'), ('pic', 'pic'), ('abs', 'abs'), ('rel', 'rel')])),
-                ('choice1', models.CharField(choices=[('LF', 'Look for'), ('I', 'Ignore')])),
-                ('choice2', models.CharField(choices=[('T', 'Tag'), ('ID', 'Id'), ('C', 'Class'), ('N', 'Name')])),
-                ('choice3', models.CharField(choices=[('BW', 'Begins with'), ('EW', 'Ends with'), ('C', 'Contains'), ('IS', 'Is')])),
+                ('rule_type', models.CharField(choices=[("media", "MEDIA"),("links", "LINKS")])),
+                ('action_choice', models.CharField(choices=[("include", "INCLUDE"),("exclude", "EXCLUDE")])),
+                ('selector_type', models.CharField(choices=[("tag", "TAG"),("id", "ID"),("class", "CLASS"),("name", "NAME")])),
+                ('match_type', models.CharField(choices=[("begins with", "BEGINS WITH"),("ends with", "ENDS WITH"),("contains", "CONTAINS"),("is", "IS")])),
                 ('text', models.CharField(max_length=100)),
             ],
         ),
-        migrations.RunPython(populate)
+        migrations.RunPython(populate),
+        migrations.RunPython(db_test.populate)
     ]

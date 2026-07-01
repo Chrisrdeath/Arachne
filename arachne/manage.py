@@ -3,8 +3,6 @@
 import os
 import sys
 
-from secrets import token_urlsafe
-
 
 def main():
     """Run administrative tasks."""
@@ -19,16 +17,6 @@ def main():
         ) from exc
     execute_from_command_line(sys.argv)
 
-def env():
-    try:
-        if not os.path.exists(r"arachne/.env"):
-            with open(r"arachne/.env", 'x') as f:
-                f.write(f"SECRET_KEY = '{token_urlsafe(32)}'\nDEBUG = True")
-            
-    except Exception as e:
-        print(e)
-        
+
 if __name__ == '__main__':
-    env()
     main()
-    

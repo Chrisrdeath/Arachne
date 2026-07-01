@@ -1,0 +1,23 @@
+body {
+    background: #0a0a0a url("../svgs/Web-CRT-Loading.svg") top no-repeat;
+    background-color: #0a0a0a;
+    color: #d1d5d0;
+    font-family: "Roboto Mono", monospace;
+    font-weight: 400;
+    width: 100%;
+    margin: auto;
+}
+
+header h1 {
+  text-align: center;
+}
+
+footer {
+    grid-column: 1/-1;
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+}
+footer a {
+    color: #d1d5d0;
+}

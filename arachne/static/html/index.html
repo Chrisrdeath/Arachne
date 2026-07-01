@@ -1,78 +1,118 @@
 {% extends "skeleton.html" %}
 {% block title %}Web Scraper{% endblock %}
 
-{% block header %}
-    <h1>Web Scraper</h1>
-    <a class="settings" href="/settings"><i class="fa-solid fa-gear"></i></a>
-{% endblock %}
-
-
 {% block content %}
-    <form id="link_form" method="POST" action="/">
-        {% csrf_token %}
-            <input type="text" name="url" id="url" placeholder="enter url">
-            <button class="success scrape_btn" type="submit">Scrape</button>
-    </form>
+    <div class="cards">
+        <div><h3>Running: {{data.running}}</h3></div>
+        <div><h3>Queued: {{data.queued}}</h3></div>
+        <div><h3>Completed: {{data.completed}}</h3></div>
+        <div><h3>Failed: {{data.failed}}</h3></div>
+        <div><h3>Files: </h3></div>
 
-    <table class="main_table">
-        <thead>
-            <tr>
-                <th>Delete</th>
-                <th>ID</th>
-                <th>Site 
-                    <form method="get">
-                        <select name="site_filter" id="site_filter" onchange="this.form.submit()">
-                            <option value="">Site Filter</option>
-                            {% for site in data.site_options %}
-                                <option value="{{site}}" {% if site == data.selected_site %} selected {% endif %}>
-                                    {{site}}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </form>
-                
-                </th>
-                <th>URL</th>
-                <th>Title</th>
-                <th>Grabbed</th>
-                <th>Items</th>
-                <th>Update</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for link in data.page_obj %}
-                <tr>
-                    <td><a href="javascript:void(0)" class="danger delete_btn" onclick="deleteConfirm('{{ link.id }}', 'Link')">Delete</a></td>
-                    <td>{{link.id}}</td>
-                    <td>{{link.site}}</td>
-                    <td><a href="{{link.url}}" class="link_url" target="_blank">{{link.url}}</a></td>
-                    <td>{{link.title}}</td>
-                    <td>{{link.dateGrabbed}}</td>
-                    <td><a href="/{{link.id}}" class="info item_btn">View Items</a></td>
-                    <td><a href="update/{{link.url|urlencode}}" class="warning update_btn"><i class="fa-solid fa-arrows-rotate"></i></a></td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <div class="pagination">
-        {% if data.page_obj.has_previous %}
-            <a class="pag_nav" href="?page={{ data.page_obj.paginator.first_page_number }}"><i class="fa-solid fa-angles-left"></i></a>
-            <a class="pag_nav" href="?page={{ data.page_obj.previous_page_number }}"><i class="fa-solid fa-angle-left"></i></a>
-        {% endif %}
-
-        <span>
-            Page 
-            <input id="pageInput" type="text" placeholder="{{ data.page_obj.number }}" onchange="changePage()">
-            of {{ data.page_obj.paginator.num_pages }}
-        </span>
-
-        {% if data.page_obj.has_next %}
-            <a class="pag_nav" href="?page={{ data.page_obj.next_page_number }}"><i class="fa-solid fa-angle-right"></i></a>
-            <a class="pag_nav" href="?page={{ data.page_obj.paginator.num_pages }}"><i class="fa-solid fa-angles-right"></i></a>
-        {% endif %}
     </div>
 
-    <a href="javascript:void(0)" class="danger delete_all" onclick="clearConfirm()">Delete All</a>
+    <div class="quick_actions">
+        <a href="scrape/media/"><div><h3>Scrape Media</h3></div></a>
+        <!--<a href="scrape/links/"><div><h3>Scrape Links</h3></div></a>
+        <a href="scrape/video/"><div><h3>Scrape Video</h3></div></a>
+        <a href="bookmarks/"><div><h3>Extract Bookmarks</h3></div></a>-->
+    </div>
+
+    <div class="recent_table">
+        <div id="toolbar">
+            <h2 id="table-name">Recent Jobs</h2>
+
+
+
+            <div id="tools">                        
+                <input placeholder="search">
+
+                <!--<form method="get">
+                    <select name="site_filter" id="site_filter" onchange="this.form.submit()">
+                        <option value="">Site Filter</option>
+                        {% for site in data.site_options %}
+                            <option value="{{site}}" {% if site == data.selected_site %} selected {% endif %}>
+                                {{site}}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </form>-->
+            </div>
+
+            <div id="filter_tools">
+
+                <form method="get">
+                        <input type="hidden" name="type" value="{{ data.type }}" id="hidden-range">
+                        <input type="hidden" name="range" value="{{ data.current_range }}" id="hidden-range">
+                        <input type="hidden" name="status" value="{{ data.status }}" id="hidden-range">
+
+                        <select name="type" id="type" onchange="this.form.submit()">
+                            <option value="">Job Type</option>
+                            <option value="scrape">Scrape</option>
+                            <option value="update">Update</option>
+                            <option value="extraction">Extract</option>
+                        </select>
+
+                        <div class="table_btns">
+                            <button name="range" value="1d" class="{% if data.current_range == '1d' %}active{% endif %}" onclick="this.form.submit()">1d</button>
+                            <button name="range" value="1w" class="{% if data.current_range == '1w' %}active{% endif %}" onclick="this.form.submit()">1w</button>
+                            <button name="range" value="1m" class="{% if data.current_range == '1m' %}active{% endif %}" onclick="this.form.submit()">1m</button>
+                        </div>
+
+
+                        <select name="status" id="status" onchange="this.form.submit()">
+                            <option value="">Status</option>
+                            <option value="running">Running</option>
+                            <option value="queued">Queued</option>
+                            <option value="completed">Completed</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                </form>
+            </div>
+
+        
+
+        </div>
+        <div class="table_scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Job Type</th>
+                        <th>URL</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in data.recent_jobs %}
+                        <tr>
+                            <td>{{job.scrape_type}}</td>
+                            <td>{{job.url}}</td>
+                            <td>{{job.status}}</td>
+                            <td></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+
+
+{% endblock %}
+{% block scripts %}
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            nav_select();
+        });
+
+        function nav_select(){
+            var nav = document.getElementById("dash_nav")
+            nav.classList.add("nav_selected")
+        }
+
+    </script>
 
 {% endblock %}

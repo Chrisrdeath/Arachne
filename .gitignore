@@ -184,3 +184,17 @@ populate_code.py
 additional_info.md
 0003_test.py
 tempCodeRunnerFile.py
+test/
+logos/
+Web-CRT-base.svg
+Web-Red.svg
+Web.svg
+test.ps1
+json/
+
+bookmark_extractor.py
+proxy_scraping.py
+video_scraper.py
+link_scraper.py
+
+bookmarks.html

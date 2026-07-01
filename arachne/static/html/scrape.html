@@ -1,0 +1,17 @@
+{% extends "skeleton_no_nav.html" %}
+{% block title %}Links{% endblock %}
+
+{% block header %}
+    <h1>Scrape {{data.h1}}</h1>
+{% endblock %}
+
+
+{% block content %}
+    <a href="javascript:void(0)" class="back_btn glass-btn danger" onclick="history.back()">Cancel</a>
+
+    <form id="link_form" method="POST" action="/scrape/{{data.h1|lower}}/">
+        {% csrf_token %}
+            <input type="text" name="url" id="url" placeholder="enter url">
+            <button class="scrape_btn glass-btn success" type="submit">Scrape</button>
+    </form>
+{% endblock %}

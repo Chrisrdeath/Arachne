@@ -1,19 +1,79 @@
 import json
 
 from django.core.paginator import Paginator
+from django.db.models import Count
 from django.shortcuts import redirect
 from django.shortcuts import render
 from urllib.parse import unquote
+from datetime import datetime, timedelta
 
 from .models import *
 from .utils import *
 from background_task.models import Task
-from static.libs import exceptions as exc
 
-#Main view
-def scrape(request):
+from static.libs.extracting import bookmark_extractor as bkmk
+from static.libs.utils import exceptions as exc
 
-    selected_site = request.GET.get('site_filter')
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
+
+paginator_objects = 12
+
+#Dashboard
+def index(request, filter=None):
+    time_ranges = {
+        '1d': timedelta(days=1),
+        '1w': timedelta(weeks=1),
+        '1m': timedelta(days=30),
+    }
+
+    range_time_key = request.GET.get('range', '1d')
+    status_filter = request.GET.get('status', '')
+    type_filter = request.GET.get('type', '')
+
+    since = datetime.now() - time_ranges.get(range_time_key, time_ranges['1d'])
+
+
+    recent_jobs = ScrapeJob.objects.filter(created_at__gte=since)
+
+    if status_filter:
+        recent_jobs = recent_jobs.filter(status=status_filter)
+
+    if type_filter:
+        recent_jobs = recent_jobs.filter(scrape_type=type_filter)
+
+    running_jobs = ScrapeJob.objects.filter(status = 'running').count()
+    queued_jobs = ScrapeJob.objects.filter(status = 'queued').count()
+    completed_jobs = ScrapeJob.objects.filter(status = 'completed').count()
+    failed_jobs = ScrapeJob.objects.filter(status = 'failed').count()
+
+    dash_data = {
+        'running' : running_jobs,
+        'queued': queued_jobs,
+        'completed': completed_jobs,
+        'failed': failed_jobs,
+        'recent_jobs': recent_jobs,
+        'current_range': range_time_key,
+        'type': status_filter,
+        'status': type_filter,
+    }
+
+    return render(request, 'index.html', {'data': dash_data})
+
+#Enter URL here
+def scrape(request, type):
+    match type:
+        case "links":
+            h1 = "Links"
+        case "media":
+            h1 = "Media"
+        case "video":
+            h1 = "Video"
+        case _:
+            return redirect('/')
+
+    request.session['type'] = type   
 
     if request.method == "POST":
         url = request.POST.get('url', '')
@@ -23,89 +83,137 @@ def scrape(request):
         except exc.URLError as e:
             return error(request, e)
 
-        scrape_items(url)
+        if(Link.objects.filter(url=url).exists()):
+            curr_link = Link.objects.get(url=url)
+            curr_job = ScrapeJob.objects.create(url=url, scrape_type='update')
 
-        task = Task.objects.filter(task_name='istos.utils.scrape_items').last()
+            link_types = LinkType.objects.filter(slug=type)
+            curr_job.linkType.add(*link_types)
 
-        request.session['task_id'] = task.id
+            request.session['task_id'] = curr_job.id
 
-        try:
-            link_info = Link.objects.get(url=url)
-            return redirect(f'/update/{link_info.id}/')
-        except Link.DoesNotExist:
-            return redirect('/loading/first/')
+            link_type_names = list(link_types.values_list('slug', flat=True))
 
+            scrape_items(curr_link.url, link_type_names, curr_job.id, priority=0)            
+            return redirect('/loading/update/')
+
+        else:
+            curr_job = ScrapeJob.objects.create(url=url, scrape_type='scrape')
+
+            link_types = LinkType.objects.filter(slug=type)
+            curr_job.linkType.add(*link_types)
+
+            request.session['task_id'] = curr_job.id
+
+            link_type_names = list(link_types.values_list('slug', flat=True))
+
+            scrape_items(url, link_type_names, curr_job.id, priority=0)
+            return redirect('/loading/first/')    
     
+    scrape_data = {
+        'h1' : h1
+    }
+    return render(request, 'scrape.html', {'data': scrape_data})
+
+#View Scraped links
+def scraped_links(request, type):
+    request.session['media_type'] = type
+    LINK_TYPE = ['scraped', 'media', 'links', 'video']
+
+    if type not in LINK_TYPE:
+        return redirect('/')
+
+    selected_site = request.GET.get('site_filter')
+        
     site_options = Link.objects.values_list('site', flat=True).distinct()
 
-    logger.info(selected_site)
+    if type == 'scraped':
+        data = Link.objects.all()
 
-    if selected_site:
-        data = Link.objects.filter(site=selected_site).order_by('id')
     else:
-        data = Link.objects.all().order_by('id')
+        linkType = LinkType.objects.get(slug=type)
+        linkTypeID = linkType.id
+        linkTypeName = linkType.slug
+
+        if selected_site:
+            data = Link.objects.filter(linkType=linkTypeID, site=selected_site).annotate(item_count=Count('items')).order_by('id')
+        else:
+            data = Link.objects.filter(linkType=linkTypeID).annotate(item_count=Count('items')).order_by('id')
 
     page_number = request.GET.get('page', 1)
-    paginator = Paginator(data, 15)
+    paginator = Paginator(data, paginator_objects)
 
     page_obj = {
+        'link_type': linkTypeName,
         'page_obj' : paginator.get_page(page_number),
         'site_options': site_options,
         'selected_site': selected_site
     }
     
-    return render(request, 'index.html', {'data': page_obj})
+    return render(request, 'scraped-links.html', {'data': page_obj})
 
-#scraping link from another link
+#Scraping link from another link
 def sec_scrape(request, id, item_id):
     link = Items.objects.get(id=item_id)
-    scrape_items(link.url)
 
     link.saved = 1
     link.dateSaved =  timezone.now()
     link.save()
 
-    task = Task.objects.filter(task_name='istos.utils.scrape_items').last()
+    curr_job = ScrapeJob.objects.create(url=url, scrape_type='scrape', created_at=timezone.now())
 
-    request.session['task_id'] = task.id
+    request.session['task_id'] = curr_job.id
     request.session['parent_id'] = id
+
+    scrape_items(link.url, 'second', curr_job.id)
     
     return redirect('/loading/second/')
-    
-#updating link that has been scraped
+
+#Update scraped data
 def update(request, id):
+    update_link = Link.objects.get(id=id)
 
-    curr_link = Link.objects.get(id=id)
-    
-    scrape_items(curr_link.url)
+    update_link.lastUpdate = timezone.now()
+    update_link.save()
 
-    task = Task.objects.filter(task_name='istos.utils.scrape_items').last()
+    curr_job = ScrapeJob.objects.create(url=update_link.url, scrape_type='update')
 
-    request.session['task_id'] = task.id
-    request.session['curr_id'] = curr_link.id
+    link_types = update_link.linkType.all()
+    for lt in link_types:
+        curr_job.linkType.add(lt)
 
+    request.session['task_id'] = curr_job.id
+
+    link_type_names = list(link_types.values_list('slug', flat=True))
+
+    scrape_items(update_link.url, link_type_names, curr_job.id, priority=0)            
     return redirect('/loading/update/')
 
-#delete one item/link from DB
-def delete(request,type, id):
+#Delete one item/link from DB
+def delete(request, id, delete_type):
     previous_url = request.META.get('HTTP_REFERER')
-    match(type):
+    
+    match(delete_type):
         case "Link":
             Link.objects.filter(id=id).first().delete()
         case "Item":
             Items.objects.filter(id=id).first().delete()
 
-    return redirect(previous_url)
+    media_type = request.session.get('media_type')
 
-#deletes all Links
+    return redirect(f'/scraped-links/{media_type}/')
+
+#Deletes all Links
 def clear(request):
     Link.objects.all().delete()
 
-    return redirect('/')
+    media_type = request.session.get('media_type')
+
+    return redirect(f'/scraped-links/{media_type}/')
 
 #Item page
 def items(request, id):
-    #for saving items to computer
+    #For saving items to computer
     if request.method == "POST":
         ids = request.POST.get('save_form_input', '')
         parent_id = id
@@ -117,8 +225,16 @@ def items(request, id):
             
         match choice:
             case "save":
-                start_save(parent_id, ids)
-                #print(parent_id)
+                link = Link.objects.get(id=parent_id)
+                url = link.url
+
+                link.lastExtract = timezone.now()
+                link.save()
+                
+                curr_job = ScrapeJob.objects.create(url=url, scrape_type='extraction')
+
+                extract_items(parent_id, ids, curr_job.id, priority=1)
+                        
                 return get_page_num(request, parent_id)
                 
             case "delete":
@@ -149,10 +265,34 @@ def items(request, id):
 
     items = Items.objects.filter(link_id=id).order_by('id')
 
+    item_info = {
+        "pics": 0,
+        "vids": 0,
+        "abs": 0,
+        "rels": 0
+    }
+
+    for item in items:
+        match item.type:
+            case "pic":
+                item_info["pics"] += 1
+
+            case "vid":
+                item_info["vids"] += 1
+
+            case "abs":
+                item_info["abs"] += 1
+
+            case "rel":
+                item_info["rels"] += 1
+            
+    
+
     link_info = (link.url, link.title, link.id)
 
     data = {
         "items" : items,
+        "item_info": item_info,
         "link_info": link_info,
     }
 
@@ -247,42 +387,36 @@ def settings(request):
 
     return render(request, 'settings.html', {'data': data})
 
-#Loading page while Scraping is happening
+#Loading page while Scraping is happening -- Polling
 def loading(request, type):
     parent_id = 0
     current_id = 0
 
-    link = None
-
     match type:
         case "first":
             h1 = "Scraping Website"
-            link = Link.objects.last()
         case "second":
             h1 = "Scraping Website"
-            parent_id = request.session.get('parent_id')
-            link = Link.objects.get(id = parent_id)
         case "update":
             h1 = "Updating Items"
-            current_id = request.session.get('curr_id')
-            link = Link.objects.get(id = current_id)
         case "auto_update":
             h1 = "Updating Items"
-            current_id = request.session.get('curr_id')
-            link = Link.objects.get(id = current_id)
 
     #Task Info
     task_id = request.session.get('task_id')
-    task_pending = Task.objects.filter(id=task_id).exists()
+    curr_task = ScrapeJob.objects.get(id=task_id)
 
     #Setting
     go_to_items = Settings.objects.get(settingName = 'auto_items')
 
-    if task_pending:
-        task_params = Task.objects.filter(id=task_id).values_list('task_params', flat=True)
-        request.session['task_url'] = task_params[0].split('"')[1]
+    if curr_task.status == "running" or curr_task.status == "queued" :
+        #Get url and put in header
         return render(request, 'loading.html', {'data': h1})
-    
+
+    ScrapeJob.objects.filter(id=curr_task.id).update(completed_at=timezone.now())
+    link = Link.objects.get(url=curr_task.url)
+    current_id = link.id
+
     if(type=="second"):
         parent_link(link.id, parent_id)
     elif(type=="auto_update"):
@@ -296,43 +430,44 @@ def loading(request, type):
     else:
         return get_page_num(request, current_id)
 
-#for paginator to go to the correct page
-def get_page_num(request, parent_id):
-    task_url = request.session.get('task_url').rstrip('/') #+ '/'
-    #print(task_url)
-    link = Link.objects.get(url=task_url)
-
-    #if(parent_id != 0):
-        #parent = Link.objects.get(id=parent_id)
-        #link.hasParent = parent
-        #link.save()
-
-    link_id = link.id
-
-    #Returns to Index if page not found
-    if not link_id:
-        return redirect('/')
-
-    #Order Links by specified number
-    data = Link.objects.all().order_by('id')
-    paginator = Paginator(data, 15)
-
-    #Calculate the page number of the Link
-    link_ids = list(data.values_list('id', flat=True))
-    #print(link_ids)
+#For paginator to return to correct page
+def get_page_num(request, id):
     try:
-        position = link_ids.index(link_id)  # 1-based position
-    except ValueError:
-        return redirect('/')
+        if id:
+            link = Link.objects.get(id=id)
+        else:
+            #Task Info
+            task_id = request.session.get('task_id')
+            curr_task = ScrapeJob.objects.get(id=task_id)
+            link = Link.objects.get(url=curr_task.url)
 
-    page_number = (position // 15) + 1
-    return redirect(f'/?page={page_number}')
+        #Returns to Index if page not found
+        if not link:
+            print("LinkID not found")
+            return redirect('/')
 
-def memory(request, mem):
-    print(mem)
+        link_types = link.linkType.all()
+        type_count = link_types.count()
 
-    return redirect('/80')
+        if(type_count > 1):
+            #More than one link types, sort all
+            #id__lt - id less than
+            position = Link.objects.filter(id__lt=link.id).count()
+            url_lt = 'scraped'
+        else:
+            #One scrape type, sort link type
+            #Filter order matters
+            position = Link.objects.filter(linkType = link_types[0], id__lt=link.id).count()
+            url_lt = link_types[0].slug
+        
+        page_number = (position // paginator_objects) + 1
 
+        return redirect(f'/scraped-links/{url_lt}/?page={page_number}')
+        
+    except Exception as e:
+        return redirect(f'/scraped-links/{url_lt}/')
+
+#Scraping rules
 def rules(request):
     if request.method == "POST":
         type = request.POST.get('type')

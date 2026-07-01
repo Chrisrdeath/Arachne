@@ -1,0 +1,105 @@
+{% extends "skeleton.html" %}
+{% block title %}{{data.link_type|capfirst}}{% endblock %}
+
+{% block content %}
+    <div id="toolbar">
+        <h2 id="table-name">Test</h2>
+
+        <div id="tools">                        
+            <input placeholder="search">
+
+            <form method="get">
+                <select name="site_filter" id="site_filter" onchange="this.form.submit()">
+                    <option value="">Site Filter</option>
+                    {% for site in data.site_options %}
+                        <option value="{{site}}" {% if site == data.selected_site %} selected {% endif %}>
+                            {{site}}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+
+            <a class="add-btn glass-btn info" href="/scrape/{{data.link_type}}/">+</a>
+        </div>
+
+    </div>
+    
+    <table class="scraped-links-table">
+        <thead>
+            <tr>
+                <th>
+                    <button href="javascript:void(0)" class="delete-all glass-btn danger" onclick="clearConfirm()">Delete All</button>
+                </th>
+                <th>ID</th>
+                <th>Site</th>
+                <th>Title</th>
+                <th>Grabbed</th>
+                <th>Last Extract</th>
+                <th>Items</th>
+                <th>Last Update</th>
+                <th>Update</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for link in data.page_obj %}
+                <tr onclick="window.location='/{{link.id}}'">
+                    <td><button type="button" class="delete-btn glass-btn danger" onclick="event.stopPropagation(); deleteConfirm('{{ link.id }}', 'Link')">Delete</button></td>
+                    <td>{{link.id}}</td>
+                    <td class="ellipsis-cell" >{{link.site}}</td>
+                    <td class="ellipsis-cell" data-fulltext="{{link.title}}">{{link.title}}</td>
+                    <td>{{link.dateGrabbed}}</td>
+                    <td>{{link.lastExtract}}</td>
+                    <td>{{link.item_count}}</td>
+                    <td>{{link.lastUpdate}}</td>
+                    <td><a onclick="event.stopPropagation();" href="/update/{{link.id}}/" class="update-btn glass-btn warning"><i class="fa-solid fa-arrows-rotate"></i></a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="page-tools">
+        <div class="pagination">
+            {% if data.page_obj.has_previous %}
+                <a class="pag_nav" href="?page={{ data.page_obj.paginator.first_page_number }}"><i class="fa-solid fa-angles-left"></i></a>
+                <a class="pag_nav" href="?page={{ data.page_obj.previous_page_number }}"><i class="fa-solid fa-angle-left"></i></a>
+            {% endif %}
+
+            <span>
+                Page 
+                <input id="pageInput" type="text" placeholder="{{ data.page_obj.number }}" onchange="changePage()">
+                of {{ data.page_obj.paginator.num_pages }}
+            </span>
+
+            {% if data.page_obj.has_next %}
+                <a class="pag_nav" href="?page={{ data.page_obj.next_page_number }}"><i class="fa-solid fa-angle-right"></i></a>
+                <a class="pag_nav" href="?page={{ data.page_obj.paginator.num_pages }}"><i class="fa-solid fa-angles-right"></i></a>
+            {% endif %}
+        </div>
+    </div>
+
+    
+{% endblock %}
+{% block scripts %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            nav_select();
+        });
+
+        function nav_select(){
+            var nav = document.getElementById("{{data.link_type|escapejs}}_nav")
+            nav.classList.add("nav_selected")
+        }
+
+        function changePage(){
+            pageInput = document.getElementById("pageInput");
+            finalPage = parseInt("{{data.page_obj.paginator.num_pages|escapejs}}");
+
+            if(pageInput.value <= finalPage && pageInput.value > 0){
+                window.location.href = "?page="+pageInput.value
+            }
+
+        }
+
+    </script>
+
+{% endblock %}
