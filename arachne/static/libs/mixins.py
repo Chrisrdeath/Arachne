@@ -461,7 +461,6 @@ class TagProccessingMixin:
 
         except Exception as e:
             self.logger.error(f"get_full_res_page: {e}")
-            print("Fuck")
     
     #Gets the file the thumbnail is for
     def get_full_res_file(self):
